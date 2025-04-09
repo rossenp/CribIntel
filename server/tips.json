@@ -1,0 +1,152 @@
+[
+  {
+    "id": 1,
+    "tip": "Reading to your baby, even from birth, helps develop language skills and creates a strong bond.",
+    "category": "development",
+    "tags": ["reading", "bonding", "language"],
+    "author": "CribIntel Team",
+    "likes": 0,
+    "createdAt": "2025-01-01",
+    "ageRange": "0-1"
+  },
+  {
+    "id": 2,
+    "tip": "Skin-to-skin contact helps regulate baby's temperature, heart rate, and stress levels.",
+    "category": "health",
+    "tags": ["bonding", "newborn", "health"],
+    "author": "CribIntel Team",
+    "likes": 0,
+    "createdAt": "2025-01-02",
+    "ageRange": "0-1"
+  },
+  {
+    "id": 3,
+    "tip": "Respond quickly to your baby's cries in the first few months - it builds trust and security, not spoiling.",
+    "category": "emotional",
+    "tags": ["crying", "security", "attachment"],
+    "author": "CribIntel Team",
+    "likes": 0,
+    "createdAt": "2025-01-03",
+    "ageRange": "0-1"
+  },
+  {
+    "id": 4,
+    "tip": "Establish a consistent bedtime routine early on to help your child develop healthy sleep habits.",
+    "category": "sleep",
+    "tags": ["bedtime", "routine", "habits"],
+    "author": "CribIntel Team",
+    "likes": 0,
+    "createdAt": "2025-01-04",
+    "ageRange": "1-2"
+  },
+  {
+    "id": 5,
+    "tip": "Talk to your baby throughout the day, narrating what you're doing - it's great for language development!",
+    "category": "development",
+    "tags": ["language", "communication", "talking"],
+    "author": "CribIntel Team",
+    "likes": 0,
+    "createdAt": "2025-01-05",
+    "ageRange": "0-1"
+  },
+  {
+    "id": 6,
+    "tip": "Tummy time helps strengthen neck, shoulder, and arm muscles needed for crawling.",
+    "category": "development",
+    "tags": ["physical", "tummy time", "muscles"],
+    "author": "CribIntel Team",
+    "likes": 0,
+    "createdAt": "2025-01-06",
+    "ageRange": "0-1"
+  },
+  {
+    "id": 7,
+    "tip": "Limit screen time for children under 2 years - interactive play is much better for brain development.",
+    "category": "development",
+    "tags": ["screen time", "play", "brain development"],
+    "author": "CribIntel Team",
+    "likes": 0,
+    "createdAt": "2025-01-07",
+    "ageRange": "1-2"
+  },
+  {
+    "id": 8,
+    "tip": "Offer a variety of healthy foods to toddlers, and don't worry if they reject some - it can take up to 15 tries before accepting new foods.",
+    "category": "nutrition",
+    "tags": ["food", "eating", "toddlers"],
+    "author": "CribIntel Team",
+    "likes": 0,
+    "createdAt": "2025-01-08",
+    "ageRange": "1-2"
+  },
+  {
+    "id": 9,
+    "tip": "When your toddler has a tantrum, stay calm and acknowledge their feelings: 'I see you're upset because...'",
+    "category": "emotional",
+    "tags": ["tantrums", "emotions", "toddlers"],
+    "author": "CribIntel Team",
+    "likes": 0,
+    "createdAt": "2025-01-09",
+    "ageRange": "2-3"
+  },
+  {
+    "id": 10,
+    "tip": "Create a childproof space where your little one can explore safely without constant 'no's.",
+    "category": "safety",
+    "tags": ["childproofing", "exploration", "safety"],
+    "author": "CribIntel Team",
+    "likes": 0,
+    "createdAt": "2025-01-10",
+    "ageRange": "1-2"
+  },
+  {
+    "id": 11,
+    "tip": "Singing songs with actions helps develop memory, coordination, and language skills.",
+    "category": "development",
+    "tags": ["music", "coordination", "memory"],
+    "author": "CribIntel Team",
+    "likes": 0,
+    "createdAt": "2025-01-11",
+    "ageRange": "1-2"
+  },
+  {
+    "id": 12,
+    "tip": "Establish a 'yes space' - an area where everything is safe to touch and explore freely.",
+    "category": "safety",
+    "tags": ["exploration", "safety", "independence"],
+    "author": "CribIntel Team",
+    "likes": 0,
+    "createdAt": "2025-01-12",
+    "ageRange": "1-2"
+  },
+  {
+    "id": 13,
+    "tip": "Rotate toys instead of having them all available at once - it keeps play fresh and engaging.",
+    "category": "play",
+    "tags": ["toys", "engagement", "variety"],
+    "author": "CribIntel Team",
+    "likes": 0,
+    "createdAt": "2025-01-13",
+    "ageRange": "2-3"
+  },
+  {
+    "id": 14,
+    "tip": "Model the behavior you want to see - children learn more from what you do than what you say.",
+    "category": "parenting",
+    "tags": ["modeling", "behavior", "learning"],
+    "author": "CribIntel Team",
+    "likes": 0,
+    "createdAt": "2025-01-14",
+    "ageRange": "2-3"
+  },
+  {
+    "id": 15,
+    "tip": "Take care of yourself too - a rested, happy parent is better able to respond to their child's needs.",
+    "category": "self-care",
+    "tags": ["self-care", "mental health", "parenting"],
+    "author": "CribIntel Team",
+    "likes": 0,
+    "createdAt": "2025-01-15",
+    "ageRange": "0-3"
+  }
+]

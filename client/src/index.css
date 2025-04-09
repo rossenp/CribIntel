@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #f8fafc;
+}
+
+.tip-card {
+  @apply bg-white rounded-3xl shadow-lg p-6 max-w-md mx-auto my-8 border-2 border-baby-blue transition-all duration-300 ease-in-out;
+}
+
+.tip-card:hover {
+  @apply shadow-xl transform -translate-y-1;
+}
+
+.refresh-button {
+  @apply bg-pastel-green hover:bg-green-400 text-gray-800 font-bold py-3 px-6 rounded-full shadow-md transition-all duration-300 ease-in-out;
+}
+
+.refresh-button:hover {
+  @apply transform scale-105;
+}
+
+.tip-enter {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.tip-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 500ms, transform 500ms;
+}
+
+.tip-exit {
+  opacity: 1;
+}
+
+.tip-exit-active {
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: opacity 500ms, transform 500ms;
+}
