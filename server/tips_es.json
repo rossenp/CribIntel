@@ -1,0 +1,152 @@
+[
+  {
+    "id": 1,
+    "tip": "Leer a tu bebé, incluso desde el nacimiento, ayuda a desarrollar habilidades lingüísticas y crea un fuerte vínculo.",
+    "category": "desarrollo",
+    "tags": ["lectura", "vínculo", "lenguaje"],
+    "author": "Equipo CribIntel",
+    "likes": 0,
+    "createdAt": "2025-01-01",
+    "ageRange": "0-1"
+  },
+  {
+    "id": 2,
+    "tip": "El contacto piel con piel ayuda a regular la temperatura, el ritmo cardíaco y los niveles de estrés del bebé.",
+    "category": "salud",
+    "tags": ["vínculo", "recién nacido", "salud"],
+    "author": "Equipo CribIntel",
+    "likes": 0,
+    "createdAt": "2025-01-02",
+    "ageRange": "0-1"
+  },
+  {
+    "id": 3,
+    "tip": "Responde rápidamente al llanto de tu bebé en los primeros meses - construye confianza y seguridad, no malcría.",
+    "category": "emocional",
+    "tags": ["llanto", "seguridad", "apego"],
+    "author": "Equipo CribIntel",
+    "likes": 0,
+    "createdAt": "2025-01-03",
+    "ageRange": "0-1"
+  },
+  {
+    "id": 4,
+    "tip": "Establece una rutina constante para la hora de dormir desde el principio para ayudar a tu hijo a desarrollar hábitos de sueño saludables.",
+    "category": "sueño",
+    "tags": ["hora de dormir", "rutina", "hábitos"],
+    "author": "Equipo CribIntel",
+    "likes": 0,
+    "createdAt": "2025-01-04",
+    "ageRange": "1-2"
+  },
+  {
+    "id": 5,
+    "tip": "Habla con tu bebé durante todo el día, narrando lo que estás haciendo - ¡es excelente para el desarrollo del lenguaje!",
+    "category": "desarrollo",
+    "tags": ["lenguaje", "comunicación", "hablar"],
+    "author": "Equipo CribIntel",
+    "likes": 0,
+    "createdAt": "2025-01-05",
+    "ageRange": "0-1"
+  },
+  {
+    "id": 6,
+    "tip": "El tiempo boca abajo ayuda a fortalecer los músculos del cuello, los hombros y los brazos necesarios para gatear.",
+    "category": "desarrollo",
+    "tags": ["físico", "tiempo boca abajo", "músculos"],
+    "author": "Equipo CribIntel",
+    "likes": 0,
+    "createdAt": "2025-01-06",
+    "ageRange": "0-1"
+  },
+  {
+    "id": 7,
+    "tip": "Limita el tiempo de pantalla para niños menores de 2 años - el juego interactivo es mucho mejor para el desarrollo cerebral.",
+    "category": "desarrollo",
+    "tags": ["tiempo de pantalla", "juego", "desarrollo cerebral"],
+    "author": "Equipo CribIntel",
+    "likes": 0,
+    "createdAt": "2025-01-07",
+    "ageRange": "1-2"
+  },
+  {
+    "id": 8,
+    "tip": "Ofrece una variedad de alimentos saludables a los niños pequeños, y no te preocupes si rechazan algunos - puede tomar hasta 15 intentos antes de aceptar nuevos alimentos.",
+    "category": "nutrición",
+    "tags": ["comida", "alimentación", "niños pequeños"],
+    "author": "Equipo CribIntel",
+    "likes": 0,
+    "createdAt": "2025-01-08",
+    "ageRange": "1-2"
+  },
+  {
+    "id": 9,
+    "tip": "Cuando tu niño pequeño tiene una rabieta, mantén la calma y reconoce sus sentimientos: 'Veo que estás molesto porque...'",
+    "category": "emocional",
+    "tags": ["rabietas", "emociones", "niños pequeños"],
+    "author": "Equipo CribIntel",
+    "likes": 0,
+    "createdAt": "2025-01-09",
+    "ageRange": "2-3"
+  },
+  {
+    "id": 10,
+    "tip": "Crea un espacio a prueba de niños donde tu pequeño pueda explorar con seguridad sin constantes 'no'.",
+    "category": "seguridad",
+    "tags": ["a prueba de niños", "exploración", "seguridad"],
+    "author": "Equipo CribIntel",
+    "likes": 0,
+    "createdAt": "2025-01-10",
+    "ageRange": "1-2"
+  },
+  {
+    "id": 11,
+    "tip": "Cantar canciones con acciones ayuda a desarrollar la memoria, la coordinación y las habilidades lingüísticas.",
+    "category": "desarrollo",
+    "tags": ["música", "coordinación", "memoria"],
+    "author": "Equipo CribIntel",
+    "likes": 0,
+    "createdAt": "2025-01-11",
+    "ageRange": "1-2"
+  },
+  {
+    "id": 12,
+    "tip": "Establece un 'espacio de sí' - un área donde todo es seguro para tocar y explorar libremente.",
+    "category": "seguridad",
+    "tags": ["exploración", "seguridad", "independencia"],
+    "author": "Equipo CribIntel",
+    "likes": 0,
+    "createdAt": "2025-01-12",
+    "ageRange": "1-2"
+  },
+  {
+    "id": 13,
+    "tip": "Rota los juguetes en lugar de tenerlos todos disponibles a la vez - mantiene el juego fresco y atractivo.",
+    "category": "juego",
+    "tags": ["juguetes", "compromiso", "variedad"],
+    "author": "Equipo CribIntel",
+    "likes": 0,
+    "createdAt": "2025-01-13",
+    "ageRange": "2-3"
+  },
+  {
+    "id": 14,
+    "tip": "Modela el comportamiento que quieres ver - los niños aprenden más de lo que haces que de lo que dices.",
+    "category": "crianza",
+    "tags": ["modelado", "comportamiento", "aprendizaje"],
+    "author": "Equipo CribIntel",
+    "likes": 0,
+    "createdAt": "2025-01-14",
+    "ageRange": "2-3"
+  },
+  {
+    "id": 15,
+    "tip": "Cuídate también - un padre descansado y feliz está mejor capacitado para responder a las necesidades de su hijo.",
+    "category": "autocuidado",
+    "tags": ["autocuidado", "salud mental", "crianza"],
+    "author": "Equipo CribIntel",
+    "likes": 0,
+    "createdAt": "2025-01-15",
+    "ageRange": "0-3"
+  }
+]

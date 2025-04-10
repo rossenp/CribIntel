@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const TipCard = ({ tip, onRefresh, isRefreshing, previousTipIds }) => {
+const TipCard = ({ tip, onRefresh, isRefreshing, previousTipIds, language }) => {
   const [animateIn, setAnimateIn] = useState(false);
   
   useEffect(() => {
@@ -20,6 +20,7 @@ const TipCard = ({ tip, onRefresh, isRefreshing, previousTipIds }) => {
   if (!tip) return null;
 
   const categoryColors = {
+    // English categories
     development: 'bg-baby-blue/20 border-baby-blue',
     health: 'bg-pastel-green/20 border-pastel-green',
     emotional: 'bg-soft-pink/20 border-soft-pink',
@@ -29,11 +30,26 @@ const TipCard = ({ tip, onRefresh, isRefreshing, previousTipIds }) => {
     play: 'bg-warm-yellow/20 border-warm-yellow',
     parenting: 'bg-soft-pink/20 border-soft-pink',
     'self-care': 'bg-baby-blue/20 border-baby-blue',
+    // Spanish categories
+    desarrollo: 'bg-baby-blue/20 border-baby-blue',
+    salud: 'bg-pastel-green/20 border-pastel-green',
+    emocional: 'bg-soft-pink/20 border-soft-pink',
+    sueño: 'bg-warm-yellow/20 border-warm-yellow',
+    nutrición: 'bg-pastel-green/20 border-pastel-green',
+    seguridad: 'bg-baby-blue/20 border-baby-blue',
+    juego: 'bg-warm-yellow/20 border-warm-yellow',
+    crianza: 'bg-soft-pink/20 border-soft-pink',
+    autocuidado: 'bg-baby-blue/20 border-baby-blue',
   };
 
   const getAgeRangeText = (ageRange) => {
-    if (ageRange === '0-3') return 'All Ages (0-3)';
-    return `Age ${ageRange} Years`;
+    if (language === 'es') {
+      if (ageRange === '0-3') return 'Todas las Edades (0-3)';
+      return `Edad ${ageRange} Años`;
+    } else {
+      if (ageRange === '0-3') return 'All Ages (0-3)';
+      return `Age ${ageRange} Years`;
+    }
   };
 
   const cardClass = `tip-card ${categoryColors[tip.category] || 'bg-white border-gray-200'} ${
@@ -64,7 +80,7 @@ const TipCard = ({ tip, onRefresh, isRefreshing, previousTipIds }) => {
             ))}
             {tip.tags.length > 2 && (
               <span className="text-xs px-2 py-1 bg-white/50 rounded-full">
-                +{tip.tags.length - 2} more
+                {language === 'es' ? `+${tip.tags.length - 2} más` : `+${tip.tags.length - 2} more`}
               </span>
             )}
           </div>
@@ -75,7 +91,9 @@ const TipCard = ({ tip, onRefresh, isRefreshing, previousTipIds }) => {
       
       <div className="flex justify-between items-center">
         {tip.author && (
-          <span className="text-sm text-gray-600">By {tip.author}</span>
+          <span className="text-sm text-gray-600">
+            {language === 'es' ? 'Por ' : 'By '}{tip.author}
+          </span>
         )}
         
         <button
@@ -86,7 +104,7 @@ const TipCard = ({ tip, onRefresh, isRefreshing, previousTipIds }) => {
               ? 'bg-gray-400 cursor-not-allowed' 
               : 'bg-baby-blue hover:bg-baby-blue/80 hover:shadow-md'
           }`}
-          aria-label="Get another tip"
+          aria-label={language === 'es' ? "Obtener otro consejo" : "Get another tip"}
         >
           {isRefreshing ? (
             <span className="flex items-center">
@@ -94,10 +112,10 @@ const TipCard = ({ tip, onRefresh, isRefreshing, previousTipIds }) => {
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              Loading...
+              {language === 'es' ? 'Cargando...' : 'Loading...'}
             </span>
           ) : (
-            'Next Tip'
+            language === 'es' ? 'Siguiente Consejo' : 'Next Tip'
           )}
         </button>
       </div>

@@ -1,16 +1,25 @@
 import React from 'react';
 
-const AgeFilter = ({ selectedAge, onAgeChange }) => {
-  const ageRanges = [
-    { value: '', label: 'All Ages' },
-    { value: '0-1', label: '0-1 Years' },
-    { value: '1-2', label: '1-2 Years' },
-    { value: '2-3', label: '2-3 Years' }
-  ];
+const AgeFilter = ({ selectedAge, onAgeChange, language }) => {
+  const ageRanges = language === 'es' 
+    ? [
+        { value: '', label: 'Todas las Edades' },
+        { value: '0-1', label: '0-1 Años' },
+        { value: '1-2', label: '1-2 Años' },
+        { value: '2-3', label: '2-3 Años' }
+      ]
+    : [
+        { value: '', label: 'All Ages' },
+        { value: '0-1', label: '0-1 Years' },
+        { value: '1-2', label: '1-2 Years' },
+        { value: '2-3', label: '2-3 Years' }
+      ];
 
   return (
     <div className="flex flex-col sm:flex-row items-center justify-center mb-6 gap-3">
-      <span className="text-sm font-medium text-gray-600">Filter by age:</span>
+      <span className="text-sm font-medium text-gray-600">
+        {language === 'es' ? 'Filtrar por edad:' : 'Filter by age:'}
+      </span>
       <div className="flex space-x-2">
         {ageRanges.map((range) => (
           <button

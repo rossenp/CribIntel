@@ -14,6 +14,7 @@ function App() {
   const [retryCount, setRetryCount] = useState(0);
   const [previousTipIds, setPreviousTipIds] = useState([]);
   const [selectedAge, setSelectedAge] = useState('');
+  const [language, setLanguage] = useState('en'); // Default to English
   const MAX_RETRY_ATTEMPTS = 3;
 
   // Create axios instance with timeout
@@ -22,18 +23,31 @@ function App() {
     baseURL: process.env.REACT_APP_API_URL || '',
   });
 
-  const fetchTip = useCallback(async (isRetry = false) => {
+  const fetchTip = useCallback(async (isRetry = false, preserveTipId = false) => {
     try {
       if (!isRetry) {
         setIsRefreshing(true);
       }
       
-      // Add age range filter if selected
-      const params = selectedAge ? { ageRange: selectedAge } : {};
+      // Add age range filter and language parameter
+      const params = {
+        ...(selectedAge ? { ageRange: selectedAge } : {}),
+        language: language
+      };
+      
+      // If preserving the current tip when switching languages, pass the tip ID
+      if (preserveTipId && tip && tip.id) {
+        params.tipId = tip.id;
+        console.log(`Preserving tip ID ${tip.id} when switching to ${language}`);
+      }
+      
+      console.log(`Fetching tip with language: ${language}`);
       const response = await api.get('/api/tip', { params });
       
       // Check if we have a valid tip
       if (response.data && response.data.tip) {
+        console.log(`Received tip: ${response.data.tip.substring(0, 30)}...`);
+        console.log(`Tip language: ${response.data.language}, Category: ${response.data.category}`);
         setTip(response.data);
         
         // Track this tip ID to avoid immediate repetition
@@ -63,13 +77,19 @@ function App() {
         
         // Only show error if we've tried multiple times
         if (retryCount >= 1) {
-          setError(`Having trouble connecting. Retry attempt ${retryCount}/${MAX_RETRY_ATTEMPTS}...`);
+          setError(
+            language === 'es'
+              ? `Teniendo problemas para conectar. Intento ${retryCount}/${MAX_RETRY_ATTEMPTS}...`
+              : `Having trouble connecting. Retry attempt ${retryCount}/${MAX_RETRY_ATTEMPTS}...`
+          );
         }
       } else {
         // Max retries reached, show error
         setError(
           err.response?.data?.message || 
-          'Failed to fetch tip. Please try again later or check your internet connection.'
+          (language === 'es'
+            ? 'No se pudo obtener el consejo. Por favor, inténtalo de nuevo más tarde o verifica tu conexión a internet.'
+            : 'Failed to fetch tip. Please try again later or check your internet connection.')
         );
       }
     } finally {
@@ -78,7 +98,7 @@ function App() {
         setIsRefreshing(false);
       }
     }
-  }, [retryCount, api, selectedAge]);
+  }, [retryCount, api, selectedAge, language, tip]);
 
   useEffect(() => {
     fetchTip();
@@ -92,6 +112,14 @@ function App() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedAge]);
+  
+  // Preserve the current tip when language changes
+  useEffect(() => {
+    if (!loading && tip) {
+      fetchTip(false, true); // Preserve tip ID when switching languages
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [language]);
 
   const handleRefresh = () => {
     setRetryCount(0); // Reset retry count on manual refresh
@@ -109,35 +137,70 @@ function App() {
     // The useEffect will trigger a new tip fetch
   };
 
+  const handleLanguageChange = (newLanguage) => {
+    setLanguage(newLanguage);
+    // The useEffect will trigger a new tip fetch
+  };
+
   return (
     <>
       <Helmet>
-        <title>CribIntel - Parenting Tips for Ages 0-3</title>
-        <meta name="description" content="Get helpful, daily parenting tips for children aged 0-3 years. Simple, practical advice for new parents." />
-        <meta name="keywords" content="parenting tips, baby advice, toddler tips, child development, new parents" />
+        <title>{language === 'es' ? 'CribIntel - Consejos para Padres de 0-3 Años' : 'CribIntel - Parenting Tips for Ages 0-3'}</title>
+        <meta 
+          name="description" 
+          content={language === 'es' 
+            ? 'Obtén consejos diarios útiles para padres de niños de 0 a 3 años. Consejos simples y prácticos para nuevos padres.' 
+            : 'Get helpful, daily parenting tips for children aged 0-3 years. Simple, practical advice for new parents.'} 
+        />
+        <meta 
+          name="keywords" 
+          content={language === 'es'
+            ? 'consejos para padres, consejos para bebés, consejos para niños pequeños, desarrollo infantil, nuevos padres'
+            : 'parenting tips, baby advice, toddler tips, child development, new parents'} 
+        />
         
         {/* Open Graph / Facebook */}
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://cribintel.com/" />
-        <meta property="og:title" content="CribIntel - Smart Parenting Tips" />
-        <meta property="og:description" content="Daily parenting wisdom for children aged 0-3 years." />
+        <meta 
+          property="og:title" 
+          content={language === 'es' ? 'CribIntel - Consejos Inteligentes para Padres' : 'CribIntel - Smart Parenting Tips'} 
+        />
+        <meta 
+          property="og:description" 
+          content={language === 'es'
+            ? 'Sabiduría diaria para padres de niños de 0 a 3 años.'
+            : 'Daily parenting wisdom for children aged 0-3 years.'} 
+        />
         <meta property="og:image" content="/og-image.jpg" />
         
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="CribIntel - Smart Parenting Tips" />
-        <meta name="twitter:description" content="Daily parenting wisdom for children aged 0-3 years." />
+        <meta 
+          name="twitter:title" 
+          content={language === 'es' ? 'CribIntel - Consejos Inteligentes para Padres' : 'CribIntel - Smart Parenting Tips'} 
+        />
+        <meta 
+          name="twitter:description" 
+          content={language === 'es'
+            ? 'Sabiduría diaria para padres de niños de 0 a 3 años.'
+            : 'Daily parenting wisdom for children aged 0-3 years.'} 
+        />
         <meta name="twitter:image" content="/og-image.jpg" />
       </Helmet>
       
       <div className="min-h-screen bg-gradient-to-b from-baby-blue/30 to-soft-pink/30 py-8 px-4">
         <div className="max-w-4xl mx-auto">
-          <Header />
+          <Header 
+            language={language} 
+            onLanguageChange={handleLanguageChange} 
+          />
           
           <main className="mt-8">
             <AgeFilter 
               selectedAge={selectedAge} 
               onAgeChange={handleAgeChange} 
+              language={language}
             />
             
             {loading && !isRefreshing ? (
@@ -148,6 +211,7 @@ function App() {
               <ErrorMessage 
                 message={error} 
                 onRetry={handleRetry} 
+                language={language}
               />
             ) : (
               <TipCard 
@@ -155,15 +219,23 @@ function App() {
                 onRefresh={handleRefresh} 
                 isRefreshing={isRefreshing} 
                 previousTipIds={previousTipIds}
+                language={language}
               />
             )}
           </main>
 
           <footer className="mt-12 text-center text-gray-500">
-            <p className="text-sm">&copy; {new Date().getFullYear()} CribIntel - Parenting Tips for Ages 0-3</p>
+            <p className="text-sm">
+              &copy; {new Date().getFullYear()} CribIntel - 
+              {language === 'es' 
+                ? ' Consejos para Padres de Niños de 0-3 Años'
+                : ' Parenting Tips for Ages 0-3'}
+            </p>
             <p className="text-xs mt-2 max-w-2xl mx-auto">
               <span className="text-gray-400">
-                DISCLAIMER: The parenting tips provided by CribIntel are for informational purposes only and are not intended as medical advice, diagnosis, or treatment. Always seek the advice of your physician, pediatrician, or other qualified health provider with any questions you may have regarding your child's health or well-being. CribIntel and its creators are not liable for any actions taken based on the information provided. Use of this application constitutes acceptance of these terms.
+                {language === 'es' 
+                  ? 'AVISO LEGAL: Los consejos para padres proporcionados por CribIntel son solo para fines informativos y no pretenden ser consejos médicos, diagnósticos o tratamientos. Siempre busque el consejo de su médico, pediatra u otro proveedor de salud calificado con cualquier pregunta que pueda tener sobre la salud o el bienestar de su hijo. CribIntel y sus creadores no son responsables de ninguna acción tomada en base a la información proporcionada. El uso de esta aplicación constituye la aceptación de estos términos.'
+                  : 'DISCLAIMER: The parenting tips provided by CribIntel are for informational purposes only and are not intended as medical advice, diagnosis, or treatment. Always seek the advice of your physician, pediatrician, or other qualified health provider with any questions you may have regarding your child\'s health or well-being. CribIntel and its creators are not liable for any actions taken based on the information provided. Use of this application constitutes acceptance of these terms.'}
               </span>
             </p>
           </footer>
