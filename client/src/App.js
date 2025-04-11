@@ -116,6 +116,8 @@ function App() {
   // Preserve the current tip when language changes
   useEffect(() => {
     if (!loading && tip) {
+      console.log(`Language changed to: ${language}. Current tip ID: ${tip.id}, Category: ${tip.category}`);
+      console.log(`Attempting to fetch the same tip in ${language} language...`);
       fetchTip(false, true); // Preserve tip ID when switching languages
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -123,21 +125,25 @@ function App() {
 
   const handleRefresh = () => {
     setRetryCount(0); // Reset retry count on manual refresh
+    console.log('Manual refresh requested');
     fetchTip();
   };
 
   const handleRetry = () => {
     setError(null);
     setRetryCount(0);
+    console.log('Retry requested after error');
     fetchTip();
   };
 
   const handleAgeChange = (ageRange) => {
+    console.log(`Age filter changed to: ${ageRange}`);
     setSelectedAge(ageRange);
     // The useEffect will trigger a new tip fetch
   };
 
   const handleLanguageChange = (newLanguage) => {
+    console.log(`Language changing from ${language} to ${newLanguage}`);
     setLanguage(newLanguage);
     // The useEffect will trigger a new tip fetch
   };

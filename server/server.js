@@ -15,24 +15,52 @@ const recentlyServedTips = new Set();
 const MAX_RECENT_TIPS = 5; // Don't repeat the last 5 tips
 
 // Load tips from JSON files
-const tipsPath = path.join(__dirname, 'tips.json');
-const tipsEsPath = path.join(__dirname, 'tips_es.json');
 let tips = [];
 let tipsEs = [];
 
-try {
-  console.log(`Attempting to load English tips from: ${tipsPath}`);
-  const tipsData = fs.readFileSync(tipsPath, 'utf8');
-  tips = JSON.parse(tipsData);
-  console.log(`Successfully loaded ${tips.length} English tips`);
-  
-  console.log(`Attempting to load Spanish tips from: ${tipsEsPath}`);
-  const tipsEsData = fs.readFileSync(tipsEsPath, 'utf8');
-  tipsEs = JSON.parse(tipsEsData);
-  console.log(`Successfully loaded ${tipsEs.length} Spanish tips`);
-} catch (error) {
-  console.error('Error loading tips:', error);
-  // Provide fallback tips in case the file can't be loaded
+// Define multiple possible paths for the tip files to handle different environments
+const possibleTipsPaths = [
+  path.join(__dirname, 'tips.json'),                   // Standard path
+  path.join(__dirname, '../tips.json'),                // One level up
+  path.join(__dirname, '../../tips.json'),             // Two levels up
+  '/var/www/cribintel/server/tips.json',               // Common production path
+  '/home/ubuntu/cribintel/server/tips.json'            // Another common production path
+];
+
+const possibleTipsEsPaths = [
+  path.join(__dirname, 'tips_es.json'),                // Standard path
+  path.join(__dirname, '../tips_es.json'),             // One level up
+  path.join(__dirname, '../../tips_es.json'),          // Two levels up
+  '/var/www/cribintel/server/tips_es.json',            // Common production path
+  '/home/ubuntu/cribintel/server/tips_es.json'         // Another common production path
+];
+
+// Function to try loading tips from multiple possible paths
+function loadTipsFromPaths(pathsArray, description) {
+  for (const filePath of pathsArray) {
+    try {
+      console.log(`Attempting to load ${description} from: ${filePath}`);
+      if (fs.existsSync(filePath)) {
+        const data = fs.readFileSync(filePath, 'utf8');
+        const parsedData = JSON.parse(data);
+        console.log(`Successfully loaded ${parsedData.length} ${description} from ${filePath}`);
+        return parsedData;
+      }
+    } catch (error) {
+      console.error(`Error loading ${description} from ${filePath}:`, error.message);
+    }
+  }
+  console.error(`Failed to load ${description} from any of the possible paths`);
+  return [];
+}
+
+// Load tips
+tips = loadTipsFromPaths(possibleTipsPaths, 'English tips');
+tipsEs = loadTipsFromPaths(possibleTipsEsPaths, 'Spanish tips');
+
+// If no tips were loaded, provide fallback tips
+if (tips.length === 0) {
+  console.warn('Using fallback English tips');
   tips = [
     { 
       id: 999, 
@@ -45,7 +73,10 @@ try {
       ageRange: '0-3'
     }
   ];
-  
+}
+
+if (tipsEs.length === 0) {
+  console.warn('Using fallback Spanish tips');
   tipsEs = [
     { 
       id: 999, 
@@ -78,11 +109,16 @@ app.get('/api/tip', (req, res) => {
     const language = req.query.language || 'en';
     console.log(`Received request for tip in language: ${language}`);
     
+    // Debug information about available tips
+    console.log(`Available English tips: ${tips.length}`);
+    console.log(`Available Spanish tips: ${tipsEs.length}`);
+    
     const tipsSource = language === 'es' ? tipsEs : tips;
     console.log(`Using tips source with ${tipsSource.length} tips`);
     
     // Check if a specific tip ID is requested (for language switching)
     const tipId = req.query.tipId ? parseInt(req.query.tipId) : null;
+    console.log(`Requested tip ID: ${tipId}`);
     
     if (tipsSource.length === 0) {
       console.error(`No tips available for language: ${language}`);
@@ -100,18 +136,27 @@ app.get('/api/tip', (req, res) => {
     if (tipId !== null) {
       console.log(`Looking for specific tip ID: ${tipId} in ${language}`);
       
+      // IMPORTANT: For Spanish, we need to handle this differently
       if (language === 'es') {
         // First try to find the exact tip ID
         randomTip = tipsEs.find(tip => tip.id === tipId);
+        console.log(`Direct match for Spanish tip ID ${tipId}: ${randomTip ? 'Found' : 'Not found'}`);
         
         // If not found, check if there's a mapping for this tip ID
         if (!randomTip && tipLanguageMap.has(tipId)) {
           const mappedId = tipLanguageMap.get(tipId);
           randomTip = tipsEs.find(tip => tip.id === mappedId);
-          console.log(`Using mapped Spanish tip ID ${mappedId} for English tip ID ${tipId}`);
+          console.log(`Using mapped Spanish tip ID ${mappedId} for English tip ID ${tipId}: ${randomTip ? 'Found' : 'Not found'}`);
+        }
+        
+        // If still not found, just use the first Spanish tip as a fallback
+        if (!randomTip && tipsEs.length > 0) {
+          randomTip = tipsEs[0];
+          console.log(`Using fallback Spanish tip ID ${randomTip.id} since requested tip was not found`);
         }
       } else {
         randomTip = tips.find(tip => tip.id === tipId);
+        console.log(`Direct match for English tip ID ${tipId}: ${randomTip ? 'Found' : 'Not found'}`);
       }
       
       // If the tip with the requested ID doesn't exist in this language, get a random one
