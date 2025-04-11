@@ -93,14 +93,27 @@ if (tipsEs.length === 0) {
 
 // Create a mapping between English and Spanish tip IDs
 const tipLanguageMap = new Map();
+
+// Since our English and Spanish tips have the same IDs, we can simplify this
+// Just verify that both languages have matching IDs
 tips.forEach(tip => {
   const matchingSpanishTip = tipsEs.find(spanishTip => spanishTip.id === tip.id);
   if (matchingSpanishTip) {
-    tipLanguageMap.set(tip.id, matchingSpanishTip.id);
+    console.log(`Verified matching tip ID ${tip.id} in both languages`);
+  } else {
+    console.log(`Warning: Tip ID ${tip.id} exists in English but not in Spanish`);
   }
 });
 
-console.log(`Created language mapping for ${tipLanguageMap.size} tips`);
+// Also check for Spanish tips that don't have English equivalents
+tipsEs.forEach(spanishTip => {
+  const matchingEnglishTip = tips.find(tip => tip.id === spanishTip.id);
+  if (!matchingEnglishTip) {
+    console.log(`Warning: Tip ID ${spanishTip.id} exists in Spanish but not in English`);
+  }
+});
+
+console.log(`Verified tip ID consistency between languages`);
 
 // API endpoint to get a random tip with optional age range filter and language
 app.get('/api/tip', (req, res) => {
@@ -136,34 +149,16 @@ app.get('/api/tip', (req, res) => {
     if (tipId !== null) {
       console.log(`Looking for specific tip ID: ${tipId} in ${language}`);
       
-      // IMPORTANT: For Spanish, we need to handle this differently
-      if (language === 'es') {
-        // First try to find the exact tip ID
-        randomTip = tipsEs.find(tip => tip.id === tipId);
-        console.log(`Direct match for Spanish tip ID ${tipId}: ${randomTip ? 'Found' : 'Not found'}`);
-        
-        // If not found, check if there's a mapping for this tip ID
-        if (!randomTip && tipLanguageMap.has(tipId)) {
-          const mappedId = tipLanguageMap.get(tipId);
-          randomTip = tipsEs.find(tip => tip.id === mappedId);
-          console.log(`Using mapped Spanish tip ID ${mappedId} for English tip ID ${tipId}: ${randomTip ? 'Found' : 'Not found'}`);
-        }
-        
-        // If still not found, just use the first Spanish tip as a fallback
-        if (!randomTip && tipsEs.length > 0) {
-          randomTip = tipsEs[0];
-          console.log(`Using fallback Spanish tip ID ${randomTip.id} since requested tip was not found`);
-        }
-      } else {
-        randomTip = tips.find(tip => tip.id === tipId);
-        console.log(`Direct match for English tip ID ${tipId}: ${randomTip ? 'Found' : 'Not found'}`);
-      }
+      // Simply look for the tip with the same ID in the requested language
+      randomTip = tipsSource.find(tip => tip.id === tipId);
+      console.log(`Direct match for ${language} tip ID ${tipId}: ${randomTip ? 'Found' : 'Not found'}`);
       
       // If the tip with the requested ID doesn't exist in this language, get a random one
       if (!randomTip) {
+        console.log(`No matching tip found for ID ${tipId} in ${language}, selecting random tip`);
         const randomIndex = Math.floor(Math.random() * tipsSource.length);
         randomTip = tipsSource[randomIndex];
-        console.log(`Requested tip #${tipId} not found in ${language}, serving random tip #${randomTip.id}`);
+        console.log(`Serving random ${language} tip #${randomTip.id} instead`);
       } else {
         console.log(`Serving ${language} tip #${randomTip.id} as requested`);
       }
