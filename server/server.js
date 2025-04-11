@@ -45,7 +45,6 @@ const possibleTipsEsPaths = [
 function loadTipsFromPaths(pathsArray, description) {
   for (const filePath of pathsArray) {
     try {
-      console.log(`Attempting to load ${description} from: ${filePath}`);
       if (fs.existsSync(filePath)) {
         const data = fs.readFileSync(filePath, 'utf8');
         const parsedData = JSON.parse(data);
@@ -61,46 +60,8 @@ function loadTipsFromPaths(pathsArray, description) {
 }
 
 // Load tips
-console.log('Starting to load English tips...');
 tips = loadTipsFromPaths(possibleTipsPaths, 'English tips');
-console.log(`Loaded ${tips.length} English tips`);
-
-console.log('Starting to load Spanish tips...');
 tipsEs = loadTipsFromPaths(possibleTipsEsPaths, 'Spanish tips');
-console.log(`Loaded ${tipsEs.length} Spanish tips`);
-
-// Add detailed logging of the first few tips from each language to verify content
-if (tips.length > 0) {
-  console.log('Sample English tip:', JSON.stringify(tips[0]));
-}
-if (tipsEs.length > 0) {
-  console.log('Sample Spanish tip:', JSON.stringify(tipsEs[0]));
-} else {
-  console.error('CRITICAL ERROR: No Spanish tips were loaded from any path!');
-  console.error('Paths attempted:', JSON.stringify(possibleTipsEsPaths));
-  
-  // Check if files exist at each path
-  possibleTipsEsPaths.forEach(path => {
-    try {
-      const exists = fs.existsSync(path);
-      console.log(`Path ${path} exists: ${exists}`);
-      if (exists) {
-        try {
-          const stats = fs.statSync(path);
-          console.log(`File size: ${stats.size} bytes`);
-          
-          // Try to read a small portion of the file to check if it's accessible
-          const fileContent = fs.readFileSync(path, 'utf8').substring(0, 100);
-          console.log(`File content preview: ${fileContent}`);
-        } catch (err) {
-          console.error(`Error reading file at ${path}:`, err);
-        }
-      }
-    } catch (err) {
-      console.error(`Error checking path ${path}:`, err);
-    }
-  });
-}
 
 // If no tips were loaded, provide fallback tips
 if (tips.length === 0) {
@@ -142,9 +103,7 @@ const tipLanguageMap = new Map();
 // Just verify that both languages have matching IDs
 tips.forEach(tip => {
   const matchingSpanishTip = tipsEs.find(spanishTip => spanishTip.id === tip.id);
-  if (matchingSpanishTip) {
-    console.log(`Verified matching tip ID ${tip.id} in both languages`);
-  } else {
+  if (!matchingSpanishTip) {
     console.log(`Warning: Tip ID ${tip.id} exists in English but not in Spanish`);
   }
 });
@@ -157,36 +116,15 @@ tipsEs.forEach(spanishTip => {
   }
 });
 
-console.log(`Verified tip ID consistency between languages`);
-
 // API endpoint to get a random tip with optional age range filter and language
 app.get('/api/tip', (req, res) => {
   try {
     // Get language preference, default to English
     const language = req.query.language || 'en';
-    console.log(`Received request for tip in language: ${language}`);
     
-    // Debug information about available tips
-    console.log(`Available English tips: ${tips.length}`);
-    console.log(`Available Spanish tips: ${tipsEs.length}`);
-    
-    // Force reload tips if none are available for the requested language
-    if ((language === 'es' && tipsEs.length === 0) || (language === 'en' && tips.length === 0)) {
-      console.log(`No tips available for ${language}, attempting to reload...`);
-      if (language === 'es') {
-        tipsEs = loadTipsFromPaths(possibleTipsEsPaths, 'Spanish tips');
-        console.log(`Reloaded Spanish tips, now have: ${tipsEs.length}`);
-      } else {
-        tips = loadTipsFromPaths(possibleTipsPaths, 'English tips');
-        console.log(`Reloaded English tips, now have: ${tips.length}`);
-      }
-    }
-    
-    // CRITICAL FIX: If we still don't have Spanish tips but have English ones, create Spanish versions from English
+    // If we don't have Spanish tips but have English ones, create Spanish versions from English
     if (language === 'es' && tipsEs.length === 0 && tips.length > 0) {
-      console.log('CRITICAL: No Spanish tips available after reload. Creating Spanish tips from English tips.');
-      
-      // Create a basic translation mapping for categories and common words
+      // Create a basic translation mapping for categories
       const categoryTranslations = {
         'development': 'desarrollo',
         'health': 'salud',
@@ -205,46 +143,16 @@ app.get('/api/tip', (req, res) => {
         return {
           ...tip,
           category: translatedCategory,
-          // We're keeping the tip content in English for now as a fallback
-          // This is better than having no Spanish tips at all
         };
       });
-      
-      console.log(`Created ${tipsEs.length} fallback Spanish tips from English tips`);
     }
     
-    let tipsSource = language === 'es' ? tipsEs : tips;
-    console.log(`Using tips source with ${tipsSource.length} tips for language: ${language}`);
-    
-    // Verify we're actually using Spanish tips for Spanish requests
-    if (language === 'es' && tipsSource.length > 0) {
-      console.log(`Verifying Spanish tip content: "${tipsSource[0].tip.substring(0, 30)}..."`);
-      // Check if the tip appears to be in Spanish (look for common Spanish words)
-      const spanishWords = ['el', 'la', 'los', 'las', 'un', 'una', 'y', 'o', 'de', 'para', 'con', 'en'];
-      const words = tipsSource[0].tip.toLowerCase().split(' ');
-      const containsSpanishWords = words.some(word => spanishWords.includes(word));
-      console.log(`Tip appears to be in Spanish: ${containsSpanishWords}`);
-      
-      if (!containsSpanishWords) {
-        console.error('WARNING: Tip marked as Spanish but appears to be in English!');
-        // Try to reload Spanish tips one more time
-        console.log('Attempting emergency reload of Spanish tips...');
-        const freshTipsEs = loadTipsFromPaths(possibleTipsEsPaths, 'Spanish tips (emergency reload)');
-        if (freshTipsEs.length > 0) {
-          tipsEs = freshTipsEs;
-          console.log(`Emergency reload successful, now have ${tipsEs.length} Spanish tips`);
-          // Update the tips source
-          tipsSource = tipsEs;
-        }
-      }
-    }
+    const tipsSource = language === 'es' ? tipsEs : tips;
     
     // Check if a specific tip ID is requested (for language switching)
     const tipId = req.query.tipId ? parseInt(req.query.tipId) : null;
-    console.log(`Requested tip ID: ${tipId}`);
     
     if (tipsSource.length === 0) {
-      console.error(`No tips available for language: ${language}`);
       return res.status(404).json({ 
         error: 'No tips available',
         message: language === 'es' 
@@ -257,20 +165,13 @@ app.get('/api/tip', (req, res) => {
     
     // If a specific tip ID is requested, find that tip in the requested language
     if (tipId !== null) {
-      console.log(`Looking for specific tip ID: ${tipId} in ${language}`);
-      
       // Simply look for the tip with the same ID in the requested language
       randomTip = tipsSource.find(tip => tip.id === tipId);
-      console.log(`Direct match for ${language} tip ID ${tipId}: ${randomTip ? 'Found' : 'Not found'}`);
       
       // If the tip with the requested ID doesn't exist in this language, get a random one
       if (!randomTip) {
-        console.log(`No matching tip found for ID ${tipId} in ${language}, selecting random tip`);
         const randomIndex = Math.floor(Math.random() * tipsSource.length);
         randomTip = tipsSource[randomIndex];
-        console.log(`Serving random ${language} tip #${randomTip.id} instead`);
-      } else {
-        console.log(`Serving ${language} tip #${randomTip.id} as requested`);
       }
     } else {
       // Filter by age range if provided
@@ -310,8 +211,6 @@ app.get('/api/tip', (req, res) => {
         const oldestTip = recentlyServedTips.values().next().value;
         recentlyServedTips.delete(oldestTip);
       }
-      
-      console.log(`Serving random ${language} tip #${randomTip.id}`);
     }
     
     // Add timestamp and language to track when tip was served
@@ -320,9 +219,6 @@ app.get('/api/tip', (req, res) => {
       servedAt: new Date().toISOString(),
       language: language
     };
-    
-    // Log the tip being served to help with debugging
-    console.log(`Serving ${language} tip #${randomTip.id}: ${randomTip.tip.substring(0, 30)}...`);
     
     res.json(tipWithTimestamp);
   } catch (error) {
