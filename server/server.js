@@ -21,10 +21,12 @@ let tips = [];
 let tipsEs = [];
 
 try {
+  console.log(`Attempting to load English tips from: ${tipsPath}`);
   const tipsData = fs.readFileSync(tipsPath, 'utf8');
   tips = JSON.parse(tipsData);
   console.log(`Successfully loaded ${tips.length} English tips`);
   
+  console.log(`Attempting to load Spanish tips from: ${tipsEsPath}`);
   const tipsEsData = fs.readFileSync(tipsEsPath, 'utf8');
   tipsEs = JSON.parse(tipsEsData);
   console.log(`Successfully loaded ${tipsEs.length} Spanish tips`);
@@ -58,17 +60,32 @@ try {
   ];
 }
 
+// Create a mapping between English and Spanish tip IDs
+const tipLanguageMap = new Map();
+tips.forEach(tip => {
+  const matchingSpanishTip = tipsEs.find(spanishTip => spanishTip.id === tip.id);
+  if (matchingSpanishTip) {
+    tipLanguageMap.set(tip.id, matchingSpanishTip.id);
+  }
+});
+
+console.log(`Created language mapping for ${tipLanguageMap.size} tips`);
+
 // API endpoint to get a random tip with optional age range filter and language
 app.get('/api/tip', (req, res) => {
   try {
     // Get language preference, default to English
     const language = req.query.language || 'en';
+    console.log(`Received request for tip in language: ${language}`);
+    
     const tipsSource = language === 'es' ? tipsEs : tips;
+    console.log(`Using tips source with ${tipsSource.length} tips`);
     
     // Check if a specific tip ID is requested (for language switching)
     const tipId = req.query.tipId ? parseInt(req.query.tipId) : null;
     
     if (tipsSource.length === 0) {
+      console.error(`No tips available for language: ${language}`);
       return res.status(404).json({ 
         error: 'No tips available',
         message: language === 'es' 
@@ -81,7 +98,21 @@ app.get('/api/tip', (req, res) => {
     
     // If a specific tip ID is requested, find that tip in the requested language
     if (tipId !== null) {
-      randomTip = tipsSource.find(tip => tip.id === tipId);
+      console.log(`Looking for specific tip ID: ${tipId} in ${language}`);
+      
+      if (language === 'es') {
+        // First try to find the exact tip ID
+        randomTip = tipsEs.find(tip => tip.id === tipId);
+        
+        // If not found, check if there's a mapping for this tip ID
+        if (!randomTip && tipLanguageMap.has(tipId)) {
+          const mappedId = tipLanguageMap.get(tipId);
+          randomTip = tipsEs.find(tip => tip.id === mappedId);
+          console.log(`Using mapped Spanish tip ID ${mappedId} for English tip ID ${tipId}`);
+        }
+      } else {
+        randomTip = tips.find(tip => tip.id === tipId);
+      }
       
       // If the tip with the requested ID doesn't exist in this language, get a random one
       if (!randomTip) {
