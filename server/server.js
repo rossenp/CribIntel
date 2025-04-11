@@ -33,7 +33,12 @@ const possibleTipsEsPaths = [
   path.join(__dirname, '../../tips_es.json'),          // Two levels up
   '/var/www/cribintel/server/tips_es.json',            // Common production path
   '/home/ubuntu/cribintel/server/tips_es.json',        // Another common production path
-  '/opt/apps/CribIntel/server/tips_es.json'            // Actual production path
+  '/opt/apps/CribIntel/server/tips_es.json',           // Actual production path
+  '/opt/apps/CribIntel/tips_es.json',                  // Alternative production path
+  '/opt/render/project/src/server/tips_es.json',       // Render.com path
+  '/opt/render/project/src/tips_es.json',              // Render.com alternative path
+  '/app/server/tips_es.json',                          // Common container path
+  '/app/tips_es.json'                                  // Root container path
 ];
 
 // Function to try loading tips from multiple possible paths
@@ -63,6 +68,39 @@ console.log(`Loaded ${tips.length} English tips`);
 console.log('Starting to load Spanish tips...');
 tipsEs = loadTipsFromPaths(possibleTipsEsPaths, 'Spanish tips');
 console.log(`Loaded ${tipsEs.length} Spanish tips`);
+
+// Add detailed logging of the first few tips from each language to verify content
+if (tips.length > 0) {
+  console.log('Sample English tip:', JSON.stringify(tips[0]));
+}
+if (tipsEs.length > 0) {
+  console.log('Sample Spanish tip:', JSON.stringify(tipsEs[0]));
+} else {
+  console.error('CRITICAL ERROR: No Spanish tips were loaded from any path!');
+  console.error('Paths attempted:', JSON.stringify(possibleTipsEsPaths));
+  
+  // Check if files exist at each path
+  possibleTipsEsPaths.forEach(path => {
+    try {
+      const exists = fs.existsSync(path);
+      console.log(`Path ${path} exists: ${exists}`);
+      if (exists) {
+        try {
+          const stats = fs.statSync(path);
+          console.log(`File size: ${stats.size} bytes`);
+          
+          // Try to read a small portion of the file to check if it's accessible
+          const fileContent = fs.readFileSync(path, 'utf8').substring(0, 100);
+          console.log(`File content preview: ${fileContent}`);
+        } catch (err) {
+          console.error(`Error reading file at ${path}:`, err);
+        }
+      }
+    } catch (err) {
+      console.error(`Error checking path ${path}:`, err);
+    }
+  });
+}
 
 // If no tips were loaded, provide fallback tips
 if (tips.length === 0) {
@@ -132,8 +170,74 @@ app.get('/api/tip', (req, res) => {
     console.log(`Available English tips: ${tips.length}`);
     console.log(`Available Spanish tips: ${tipsEs.length}`);
     
-    const tipsSource = language === 'es' ? tipsEs : tips;
+    // Force reload tips if none are available for the requested language
+    if ((language === 'es' && tipsEs.length === 0) || (language === 'en' && tips.length === 0)) {
+      console.log(`No tips available for ${language}, attempting to reload...`);
+      if (language === 'es') {
+        tipsEs = loadTipsFromPaths(possibleTipsEsPaths, 'Spanish tips');
+        console.log(`Reloaded Spanish tips, now have: ${tipsEs.length}`);
+      } else {
+        tips = loadTipsFromPaths(possibleTipsPaths, 'English tips');
+        console.log(`Reloaded English tips, now have: ${tips.length}`);
+      }
+    }
+    
+    // CRITICAL FIX: If we still don't have Spanish tips but have English ones, create Spanish versions from English
+    if (language === 'es' && tipsEs.length === 0 && tips.length > 0) {
+      console.log('CRITICAL: No Spanish tips available after reload. Creating Spanish tips from English tips.');
+      
+      // Create a basic translation mapping for categories and common words
+      const categoryTranslations = {
+        'development': 'desarrollo',
+        'health': 'salud',
+        'emotional': 'emocional',
+        'sleep': 'sueño',
+        'nutrition': 'nutrición',
+        'safety': 'seguridad',
+        'play': 'juego',
+        'parenting': 'crianza',
+        'self-care': 'autocuidado'
+      };
+      
+      // Create Spanish tips based on English ones with translated categories
+      tipsEs = tips.map(tip => {
+        const translatedCategory = categoryTranslations[tip.category] || tip.category;
+        return {
+          ...tip,
+          category: translatedCategory,
+          // We're keeping the tip content in English for now as a fallback
+          // This is better than having no Spanish tips at all
+        };
+      });
+      
+      console.log(`Created ${tipsEs.length} fallback Spanish tips from English tips`);
+    }
+    
+    let tipsSource = language === 'es' ? tipsEs : tips;
     console.log(`Using tips source with ${tipsSource.length} tips for language: ${language}`);
+    
+    // Verify we're actually using Spanish tips for Spanish requests
+    if (language === 'es' && tipsSource.length > 0) {
+      console.log(`Verifying Spanish tip content: "${tipsSource[0].tip.substring(0, 30)}..."`);
+      // Check if the tip appears to be in Spanish (look for common Spanish words)
+      const spanishWords = ['el', 'la', 'los', 'las', 'un', 'una', 'y', 'o', 'de', 'para', 'con', 'en'];
+      const words = tipsSource[0].tip.toLowerCase().split(' ');
+      const containsSpanishWords = words.some(word => spanishWords.includes(word));
+      console.log(`Tip appears to be in Spanish: ${containsSpanishWords}`);
+      
+      if (!containsSpanishWords) {
+        console.error('WARNING: Tip marked as Spanish but appears to be in English!');
+        // Try to reload Spanish tips one more time
+        console.log('Attempting emergency reload of Spanish tips...');
+        const freshTipsEs = loadTipsFromPaths(possibleTipsEsPaths, 'Spanish tips (emergency reload)');
+        if (freshTipsEs.length > 0) {
+          tipsEs = freshTipsEs;
+          console.log(`Emergency reload successful, now have ${tipsEs.length} Spanish tips`);
+          // Update the tips source
+          tipsSource = tipsEs;
+        }
+      }
+    }
     
     // Check if a specific tip ID is requested (for language switching)
     const tipId = req.query.tipId ? parseInt(req.query.tipId) : null;
