@@ -32,7 +32,8 @@ const possibleTipsEsPaths = [
   path.join(__dirname, '../tips_es.json'),             // One level up
   path.join(__dirname, '../../tips_es.json'),          // Two levels up
   '/var/www/cribintel/server/tips_es.json',            // Common production path
-  '/home/ubuntu/cribintel/server/tips_es.json'         // Another common production path
+  '/home/ubuntu/cribintel/server/tips_es.json',        // Another common production path
+  '/opt/apps/CribIntel/server/tips_es.json'            // Actual production path
 ];
 
 // Function to try loading tips from multiple possible paths
@@ -55,8 +56,13 @@ function loadTipsFromPaths(pathsArray, description) {
 }
 
 // Load tips
+console.log('Starting to load English tips...');
 tips = loadTipsFromPaths(possibleTipsPaths, 'English tips');
+console.log(`Loaded ${tips.length} English tips`);
+
+console.log('Starting to load Spanish tips...');
 tipsEs = loadTipsFromPaths(possibleTipsEsPaths, 'Spanish tips');
+console.log(`Loaded ${tipsEs.length} Spanish tips`);
 
 // If no tips were loaded, provide fallback tips
 if (tips.length === 0) {
@@ -127,7 +133,7 @@ app.get('/api/tip', (req, res) => {
     console.log(`Available Spanish tips: ${tipsEs.length}`);
     
     const tipsSource = language === 'es' ? tipsEs : tips;
-    console.log(`Using tips source with ${tipsSource.length} tips`);
+    console.log(`Using tips source with ${tipsSource.length} tips for language: ${language}`);
     
     // Check if a specific tip ID is requested (for language switching)
     const tipId = req.query.tipId ? parseInt(req.query.tipId) : null;
